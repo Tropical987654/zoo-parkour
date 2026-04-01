@@ -1,17 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>ZOO PARKOUR: REAL FOREST 🌳</title>
+    <title>ZOO PARKOUR: WASD EDITION 🐻‍❄️</title>
     <style>
         body { margin: 0; overflow: hidden; background: #a2d2ff; font-family: sans-serif; }
         #ui { position: absolute; top: 20px; left: 20px; color: white; text-shadow: 2px 2px 4px #000; pointer-events: none; }
+        .controls { background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; margin-top: 10px; }
     </style>
 </head>
 <body>
     <div id="ui">
         <h1>ZOO PARKOUR</h1>
-        <p>Крути <b>КОЛЁСИКО</b> — меняй зверя!</p>
+        <div class="controls">
+            🏃 <b>WASD</b> — Бегать по лесу<br>
+            🔄 <b>Q / E</b> — Сменить зверя<br>
+            🖱️ <b>Колёсико</b> — Тоже работает!
+        </div>
     </div>
 
     <script type="module">
@@ -24,63 +29,84 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+        scene.add(new THREE.AmbientLight(0xffffff, 1.3));
         const sun = new THREE.DirectionalLight(0xffffff, 0.8);
         sun.position.set(10, 20, 10);
         scene.add(sun);
 
-        camera.position.set(0, 8, 15);
-        camera.lookAt(0, 0, 0);
-
         const loader = new GLTFLoader();
 
-        // --- ГЕРОИ ---
-        const animals = ['animal-bear.glb', 'animal-panda.glb', 'animal-fox.glb', 'animal-penguin.glb'];
+        // --- ГЕРОИ (Исправлено на animal-polar.glb) ---
+        const animals = ['animal-polar.glb', 'animal-panda.glb', 'animal-fox.glb', 'animal-penguin.glb'];
         let currentIdx = 0;
         let player = null;
 
         function loadPlayer(idx) {
+            const oldPos = player ? player.position.clone() : new THREE.Vector3(0, 1, 0);
             if (player) scene.remove(player);
+            
             loader.load(animals[idx], (gltf) => {
                 player = gltf.scene;
-                player.position.y = 1;
+                player.position.copy(oldPos);
                 scene.add(player);
             });
         }
         loadPlayer(currentIdx);
 
+        // --- УПРАВЛЕНИЕ КЛАВИАТУРОЙ (Q, E и WASD) ---
+        const keys = { w: false, a: false, s: false, d: false };
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (keys.hasOwnProperty(key)) keys[key] = true;
+
+            if (key === 'q') { // Листаем назад
+                currentIdx = (currentIdx - 1 + animals.length) % animals.length;
+                loadPlayer(currentIdx);
+            }
+            if (key === 'e') { // Листаем вперед
+                currentIdx = (currentIdx + 1) % animals.length;
+                loadPlayer(currentIdx);
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (keys.hasOwnProperty(key)) keys[key] = false;
+        });
+
+        // Колёсико тоже оставляем для удобства
         window.addEventListener('wheel', (e) => {
             currentIdx = e.deltaY > 0 ? (currentIdx + 1) % animals.length : (currentIdx - 1 + animals.length) % animals.length;
             loadPlayer(currentIdx);
         });
 
-        // --- ГЕНЕРАЦИЯ ЛЕСА ---
-        // Тут мы используем твои модели из MegaKit
+        // --- МИР ---
         function spawnWorld() {
-            for (let z = 0; z > -200; z -= 10) {
-                // 1. Ставим платформу (кочку)
-                const geo = new THREE.CylinderGeometry(3, 3, 1, 6);
-                const mat = new THREE.MeshStandardMaterial({ color: 0x55aa44 });
+            for (let z = 0; z > -300; z -= 12) {
+                const geo = new THREE.BoxGeometry(8, 1, 8);
+                const mat = new THREE.MeshStandardMaterial({ color: 0x44aa33 });
                 const land = new THREE.Mesh(geo, mat);
-                land.position.set(Math.sin(z * 0.3) * 5, 0, z);
+                land.position.set(Math.sin(z * 0.2) * 6, 0, z);
                 scene.add(land);
-
-                // 2. С шансом 50% ставим дерево из твоего пака рядом!
-                if (Math.random() > 0.5) {
-                    loader.load('Tree.glb', (gltf) => { // Проверь, чтобы файл назывался именно так!
-                        const tree = gltf.scene;
-                        tree.position.set(land.position.x + 6, 0, z);
-                        tree.scale.set(2, 2, 2);
-                        scene.add(tree);
-                    });
-                }
             }
         }
         spawnWorld();
 
+        // --- АНИМАЦИЯ И ДВИЖЕНИЕ ---
         function animate() {
             requestAnimationFrame(animate);
-            if (player) player.rotation.y += 0.01;
+            
+            if (player) {
+                const speed = 0.2;
+                if (keys.w) player.position.z -= speed;
+                if (keys.s) player.position.z += speed;
+                if (keys.a) player.position.x -= speed;
+                if (keys.d) player.position.x += speed;
+
+                // Камера плавно следует за игроком
+                camera.position.lerp(new THREE.Vector3(player.position.x, player.position.y + 8, player.position.z + 15), 0.1);
+                camera.lookAt(player.position);
+            }
+
             renderer.render(scene, camera);
         }
         animate();
