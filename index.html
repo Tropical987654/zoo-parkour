@@ -2,66 +2,55 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>ZOO TYCOON PRO: RAINBOW & CATERPILLAR 🌈🐛💰</title>
+    <title>ZOO TYCOON: SMART SPAWN & PASSIVE INCOME 🌈💰</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Arial Black', sans-serif; display: flex; animation: rainbowBG 15s linear infinite; }
+        body { margin: 0; overflow: hidden; font-family: 'Arial Black', sans-serif; display: flex; animation: rainbowBG 20s linear infinite; }
         
-        /* Радужная анимация фона */
         @keyframes rainbowBG {
-            0% { background-color: #ffadad; }
-            16% { background-color: #ffd6a5; }
-            33% { background-color: #fdffb6; }
-            50% { background-color: #caffbf; }
-            66% { background-color: #9bf6ff; }
-            83% { background-color: #a0c4ff; }
+            0% { background-color: #ffadad; } 16% { background-color: #ffd6a5; }
+            33% { background-color: #fdffb6; } 50% { background-color: #caffbf; }
+            66% { background-color: #9bf6ff; } 83% { background-color: #a0c4ff; }
             100% { background-color: #ffadad; }
         }
 
-        /* Панели */
-        .side-panel { width: 330px; background: rgba(255,255,255,0.9); padding: 15px; height: 100vh; overflow-y: auto; box-sizing: border-box; z-index: 20; border: 6px solid #333; }
-        #left-panel { border-right: 6px solid #333; }
-        #right-panel { border-left: 6px solid #333; }
-        
+        .side-panel { width: 330px; background: rgba(255,255,255,0.85); padding: 15px; height: 100vh; overflow-y: auto; box-sizing: border-box; z-index: 20; border: 6px solid #333; box-shadow: 0 0 20px rgba(0,0,0,0.2); }
         #game-area { flex: 1; position: relative; }
         #ui-top { position: absolute; top: 20px; width: 100%; text-align: center; pointer-events: none; z-index: 10; }
         #gold-display { font-size: 55px; text-shadow: 4px 4px 0px #fff; color: #333; }
         
         .section-title { text-align: center; background: #333; color: #fff; padding: 12px; border-radius: 12px; font-size: 16px; margin-bottom: 15px; position: sticky; top: 0; }
         .card { background: #fff; border: 3px solid #ddd; border-radius: 18px; padding: 12px; margin-bottom: 12px; transition: 0.2s; }
-        .card:hover { border-color: #FF5757; }
         
-        /* КНОПКИ (Исправлены) */
         .buy-btn { 
-            width: 100%; padding: 10px; font-size: 14px; cursor: pointer; 
+            width: 100%; padding: 12px; font-size: 14px; cursor: pointer; 
             background: #FF5757; color: white; border: none; border-radius: 10px; 
-            box-shadow: 0 4px #c0392b; margin-top: 8px; transition: 0.1s;
+            box-shadow: 0 4px #c0392b; margin-top: 8px; transition: 0.1s; font-family: inherit;
         }
-        .buy-btn:hover { background: #e74c3c; transform: scale(1.05); }
+        .buy-btn:hover { background: #e74c3c; transform: scale(1.02); }
         .buy-btn:active { transform: translateY(3px); box-shadow: 0 1px #c0392b; }
-        .buy-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
 
-        .floating-click { position: absolute; pointer-events: none; color: #FFD700; font-weight: bold; animation: floatUp 0.7s ease-out forwards; z-index: 100; font-size: 30px; text-shadow: 2px 2px #000; }
-        @keyframes floatUp { from { transform: scale(1); opacity: 1; } to { transform: translateY(-120px) scale(1.5); opacity: 0; } }
+        .floating-click { position: absolute; pointer-events: none; color: #FFD700; font-weight: bold; animation: floatUp 0.6s ease-out forwards; z-index: 100; font-size: 32px; text-shadow: 2px 2px #000; }
+        @keyframes floatUp { from { opacity: 1; } to { transform: translateY(-100px); opacity: 0; } }
     </style>
 </head>
 <body>
 
     <div id="left-panel" class="side-panel">
-        <div class="section-title">ПРОКАЧКА ⚡️</div>
+        <div class="section-title">УЛУЧШЕНИЯ ⚡️</div>
         <div id="upgrades-list"></div>
     </div>
 
     <div id="game-area">
         <div id="ui-top">
             <div id="gold-display">💰 <span id="gold-val">0</span></div>
-            <div style="font-size: 14px; background: rgba(255,255,255,0.7); display: inline-block; padding: 5px 15px; border-radius: 20px;">
-                Клик: x<span id="total-click">1</span> | Авто: <span id="total-auto">0</span>/с
+            <div style="font-size: 16px; background: white; padding: 5px 15px; border-radius: 15px; display: inline-block; border: 3px solid #333;">
+                Клик: x<span id="total-click">1</span> | Доход: +<span id="total-income">0</span>/сек
             </div>
         </div>
     </div>
 
     <div id="right-panel" class="side-panel">
-        <div class="section-title">МАГАЗИН ПЕТОВ 🐾</div>
+        <div class="section-title">МАГАЗИН ЖИВОТНЫХ 🐾</div>
         <div id="pet-list"></div>
     </div>
 
@@ -72,23 +61,21 @@
         let game = {
             gold: 0,
             upgrades: {
-                u1: { lvl: 1, name: "Острые когти", cost: 50 },
-                u2: { lvl: 0, name: "Кормушка", cost: 150 },
-                u3: { lvl: 0, name: "Крит. Укус", cost: 500 },
-                u4: { lvl: 0, name: "Золотая пыль", cost: 1000 },
-                u5: { lvl: 0, name: "Энергетик", cost: 2500 }
+                u1: { lvl: 1, name: "Сила Клика", cost: 50 },
+                u2: { lvl: 0, name: "Пассивный Доход", cost: 150 },
+                u3: { lvl: 0, name: "Крит. Шанс", cost: 1000 },
+                u4: { lvl: 0, name: "Скидка Оптом", cost: 5000 }
             },
             ownedPets: []
         };
 
         const allPetsData = [
-            // Худший питомец теперь на первом месте
-            { id: 'caterpillar', file: 'animal-caterpillar.glb', name: 'Гусеница', price: 50, click: 1, auto: 1 },
-            { id: 'beaver', file: 'animal-beaver.glb', name: 'Бобр', price: 200, click: 2, auto: 5 },
-            { id: 'bee', file: 'animal-bee.glb', name: 'Пчела', price: 1000, click: 20, auto: 0 },
-            { id: 'polar', file: 'animal-polar.glb', name: 'Белый Медведь', price: 2000, click: 15, auto: 15 },
-            { id: 'tiger', file: 'animal-tiger.glb', name: 'Тигр', price: 7500, click: 80, auto: 30 },
-            { id: 'elephant', file: 'animal-elephant.glb', name: 'Слон', price: 25000, click: 200, auto: 100 }
+            { id: 'caterpillar', file: 'animal-caterpillar.glb', name: 'Гусеница', price: 50, click: 1, income: 1 },
+            { id: 'beaver', file: 'animal-beaver.glb', name: 'Бобр', price: 300, click: 2, income: 5 },
+            { id: 'bee', file: 'animal-bee.glb', name: 'Пчела', price: 1200, click: 15, income: 2 },
+            { id: 'polar', file: 'animal-polar.glb', name: 'Медведь', price: 3500, click: 40, income: 20 },
+            { id: 'tiger', file: 'animal-tiger.glb', name: 'Тигр', price: 10000, click: 100, income: 50 },
+            { id: 'elephant', file: 'animal-elephant.glb', name: 'Слон', price: 50000, click: 500, income: 250 }
         ];
 
         const scene = new THREE.Scene();
@@ -97,33 +84,42 @@
         renderer.setSize(window.innerWidth - 660, window.innerHeight);
         document.getElementById('game-area').appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 2.3));
-        camera.position.set(0, 10, 15);
-        camera.lookAt(0, 0, 0);
+        scene.add(new THREE.AmbientLight(0xffffff, 2.5));
+        camera.position.set(0, 10, 18);
+        camera.lookAt(0, 2, 0);
 
         const loader = new GLTFLoader();
         const petModels = [];
 
+        // УМНАЯ РАССТАНОВКА
         function spawnPet(data) {
             loader.load(data.file, (gltf) => {
                 const model = gltf.scene;
                 const idx = game.ownedPets.length - 1;
-                model.position.set((idx % 5) * 4 - 8, 1, Math.floor(idx / 5) * 4);
-                model.scale.set(2.8, 2.8, 2.8);
+                
+                const row = Math.floor(idx / 5);
+                const posInRow = idx % 5;
+                
+                // Схема: [ -2 ] [ -1 ] [ 0 ] [ 1 ] [ 2 ]
+                const xPositions = [0, -4, 4, -8, 8]; 
+                const x = xPositions[posInRow];
+                const z = row * 6;
+
+                model.position.set(x, 1, z);
+                model.scale.set(3, 3, 3);
                 scene.add(model);
                 petModels.push(model);
             });
         }
 
-        // 1. НАЧИНАЕМ ТОЛЬКО С ГУСЕНИЦЫ!
-        const caterpillar = allPetsData.find(p => p.id === 'caterpillar');
-        game.ownedPets.push(caterpillar);
-        spawnPet(caterpillar);
+        // Старт с Гусеницы
+        const firstPet = allPetsData[0];
+        game.ownedPets.push(firstPet);
+        spawnPet(firstPet);
 
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
-        // Клик работает ТОЛЬКО в центральной зоне
         window.addEventListener('mousedown', (e) => {
             if (e.clientX < 330 || e.clientX > window.innerWidth - 330) return;
 
@@ -134,56 +130,67 @@
             const intersects = raycaster.intersectObjects(scene.children, true);
 
             if (intersects.length > 0) {
-                let val = game.upgrades.u1.lvl + game.ownedPets.reduce((s, p) => s + p.click, 0);
-                game.gold += val;
+                let clickPower = game.upgrades.u1.lvl + game.ownedPets.reduce((s, p) => s + p.click, 0);
+                game.gold += clickPower;
 
-                // Эффект прыжка
                 let target = intersects[0].object;
                 while(target.parent && target.parent !== scene) target = target.parent;
-                target.scale.set(3.8, 3.8, 3.8);
-                setTimeout(() => target.scale.set(2.8, 2.8, 2.8), 100);
+                target.scale.set(4, 4, 4);
+                setTimeout(() => target.scale.set(3, 3, 3), 100);
 
                 const txt = document.createElement('div');
                 txt.className = 'floating-click';
                 txt.style.left = e.clientX + 'px';
                 txt.style.top = e.clientY + 'px';
-                txt.innerText = "+" + val;
+                txt.innerText = "+" + clickPower;
                 document.body.appendChild(txt);
                 setTimeout(() => txt.remove(), 600);
-                refreshUI();
+                updateUI();
             }
         });
 
-        function refreshUI() {
+        // ПАССИВНЫЙ ДОХОД (раз в секунду)
+        setInterval(() => {
+            let passive = game.upgrades.u2.lvl + game.ownedPets.reduce((s, p) => s + p.income, 0);
+            if (passive > 0) {
+                game.gold += passive;
+                updateUI();
+            }
+        }, 1000);
+
+        function updateUI() {
             document.getElementById('gold-val').innerText = Math.floor(game.gold);
             document.getElementById('total-click').innerText = game.upgrades.u1.lvl + game.ownedPets.reduce((s, p) => s + p.click, 0);
-            document.getElementById('total-auto').innerText = game.upgrades.u2.lvl + game.ownedPets.reduce((s, p) => s + p.auto, 0);
+            document.getElementById('total-income').innerText = game.upgrades.u2.lvl + game.ownedPets.reduce((s, p) => s + p.income, 0);
 
-            // Рендер Прокачки (Лево)
             const upgList = document.getElementById('upgrades-list');
             upgList.innerHTML = '';
             Object.keys(game.upgrades).forEach(k => {
                 const u = game.upgrades[k];
-                upgList.innerHTML += `<div class="card"><b>${u.name}</b> (Lvl ${u.lvl})<br>
-                <button class="buy-btn" onclick="window.buyUpg('${k}')">Купить: ${u.cost} 💰</button></div>`;
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `<b>${u.name}</b> (Lvl ${u.lvl})<br>
+                <button class="buy-btn" onclick="window.buyUpg('${k}')">Улучшить: ${u.cost} 💰</button>`;
+                upgList.appendChild(div);
             });
 
-            // Рендер Магазина (Право)
             const pList = document.getElementById('pet-list');
             pList.innerHTML = '';
             allPetsData.forEach(p => {
-                pList.innerHTML += `<div class="card"><b>${p.name}</b><br><small>+${p.click} Тык | +${p.auto} Авто</small>
-                <button class="buy-btn" onclick="window.buyPet('${p.id}')">Купить: ${p.price} 💰</button></div>`;
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `<b>${p.name}</b><br><small>Клик +${p.click} | Доход +${p.income}/с</small>
+                <button class="buy-btn" onclick="window.buyPet('${p.id}')">Купить: ${p.price} 💰</button>`;
+                pList.appendChild(div);
             });
         }
 
-        // Глобальные функции для кнопок
         window.buyUpg = (id) => {
             if (game.gold >= game.upgrades[id].cost) {
                 game.gold -= game.upgrades[id].cost;
                 game.upgrades[id].lvl++;
-                game.upgrades[id].cost *= 2;
-                refreshUI();
+                game.upgrades[id].cost = Math.floor(game.upgrades[id].cost * 2.2);
+                updateUI();
             }
         };
 
@@ -193,16 +200,11 @@
                 game.gold -= pet.price;
                 game.ownedPets.push(pet);
                 spawnPet(pet);
-                refreshUI();
+                updateUI();
             }
         };
 
-        setInterval(() => {
-            let a = game.upgrades.u2.lvl + game.ownedPets.reduce((s, p) => s + p.auto, 0);
-            if (a > 0) { game.gold += a / 10; refreshUI(); }
-        }, 100);
-
-        refreshUI();
+        updateUI();
         function animate() {
             requestAnimationFrame(animate);
             petModels.forEach(m => m.lookAt(camera.position.x, 0, camera.position.z));
