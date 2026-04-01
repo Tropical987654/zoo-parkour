@@ -2,37 +2,22 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>ZOO TYCOON ULTRA: CATERPILLAR EDITION 💰🐛</title>
+    <title>ZOO TYCOON GIGA: ALL ANIMALS! 💰🐘</title>
     <style>
         body { margin: 0; overflow: hidden; background: #FFDE59; font-family: 'Arial Black', sans-serif; display: flex; }
-        
-        /* Игровая зона */
-        #game-area { flex: 1; position: relative; cursor: crosshair; }
+        #game-area { flex: 1; position: relative; cursor: pointer; }
         #ui-top { position: absolute; top: 20px; width: 100%; text-align: center; pointer-events: none; z-index: 10; }
         #gold-display { font-size: 70px; text-shadow: 4px 4px 0px #fff; color: #333; }
-
-        /* ОГРОМНОЕ МЕНЮ СПРАВА */
+        
         #side-menu { 
-            width: 450px; background: #fff; border-left: 8px solid #333; 
+            width: 480px; background: #fff; border-left: 8px solid #333; 
             padding: 25px; overflow-y: auto; height: 100vh; box-sizing: border-box;
         }
         h2 { text-align: center; background: #333; color: #fff; padding: 15px; border-radius: 15px; margin-top: 0; }
-        
-        .upgrade-card { 
-            background: #f9f9f9; border: 4px solid #eee; border-radius: 20px; 
-            padding: 20px; margin-bottom: 20px; transition: 0.3s;
-        }
-        .upgrade-card:hover { border-color: #FF5757; background: #fff; }
-        .lvl-tag { background: #333; color: #fff; padding: 2px 8px; border-radius: 5px; font-size: 14px; }
-        
-        .buy-btn { 
-            width: 100%; padding: 15px; font-size: 20px; cursor: pointer; 
-            background: #FF5757; color: white; border: none; border-radius: 12px;
-            box-shadow: 0 5px #c0392b; margin-top: 10px;
-        }
+        .upgrade-card { background: #f9f9f9; border: 4px solid #eee; border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        .buy-btn { width: 100%; padding: 15px; font-size: 20px; cursor: pointer; background: #FF5757; color: white; border: none; border-radius: 12px; box-shadow: 0 5px #c0392b; margin-top: 10px; }
         .buy-btn:active { transform: translateY(3px); box-shadow: 0 2px #c0392b; }
         .buy-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
-
         #stats-bar { font-size: 18px; color: #444; margin-bottom: 20px; text-align: center; }
     </style>
 </head>
@@ -41,30 +26,30 @@
     <div id="game-area">
         <div id="ui-top">
             <div id="gold-display">💰 0</div>
-            <div id="stats-bar">Сила клика: <span id="stat-click">1</span> | В сек: <span id="stat-auto">0</span></div>
+            <div id="stats-bar">Тык: x<span id="stat-click">1</span> | Авто: <span id="stat-auto">0</span>/сек</div>
         </div>
     </div>
 
     <div id="side-menu">
-        <h2>МАГАЗИН 🛒</h2>
+        <h2>МАГАЗИН & ПРОКАЧКА 🛒</h2>
         
-        <div class="upgrade-card">
-            <div><b>💪 СИЛА ТЫКА</b> <span class="lvl-tag">Lvl <span id="lvl-click">1</span></span></div>
+        <div class="upgrade-card" style="background: #E3F2FD;">
+            <div><b>💪 СИЛА ТЫКА</b> (Lvl <span id="lvl-click">1</span>)</div>
             <button class="buy-btn" onclick="upgrade('click')">Улучшить: <span id="cost-click">50</span> 💰</button>
         </div>
 
-        <div class="upgrade-card">
-            <div><b>🤖 АВТО-КЛИКЕР</b> <span class="lvl-tag">Lvl <span id="lvl-auto">0</span></span></div>
+        <div class="upgrade-card" style="background: #F1F8E9;">
+            <div><b>🤖 АВТО-КЛИКЕР</b> (Lvl <span id="lvl-auto">0</span>)</div>
             <button class="buy-btn" onclick="upgrade('auto')">Улучшить: <span id="cost-auto">150</span> 💰</button>
         </div>
 
-        <div class="upgrade-card" style="background: #FFF4E0;">
-            <div><b>🔥 МНОЖИТЕЛЬ (x2)</b></div>
-            <button class="buy-btn" style="background: #FF9800; box-shadow: 0 5px #E65100;" onclick="upgrade('mult')">КУПИТЬ: <span id="cost-mult">5000</span> 💰</button>
+        <div class="upgrade-card" style="background: #FFFDE7;">
+            <div><b>✨ СУПЕР-МНОЖИТЕЛЬ (x2 навсегда)</b></div>
+            <button class="buy-btn" style="background: #FFD600; color: #333; box-shadow: 0 5px #FBC02D;" onclick="upgrade('mult')">КУПИТЬ: <span id="cost-mult">10000</span> 💰</button>
         </div>
 
         <div class="upgrade-card" style="background: #E8F5E9;">
-            <div><b>🐾 НОВЫЙ ЗВЕРЬ</b> (<span id="pet-count">1</span>/10)</div>
+            <div><b>🐾 НОВЫЙ ЖИТЕЛЬ</b> (<span id="pet-count">1</span>/28)</div>
             <button class="buy-btn" id="buy-pet-btn" style="background: #4CAF50; box-shadow: 0 5px #2E7D32;" onclick="buyPet()">НАНЯТЬ: <span id="cost-pet">500</span> 💰</button>
         </div>
     </div>
@@ -74,61 +59,59 @@
         import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
 
         let game = {
-            gold: 0,
-            clickPower: 1,
-            autoPower: 0,
-            multiplier: 1,
-            petLevel: 1,
-            costs: { click: 50, auto: 150, pet: 500, mult: 5000 }
+            gold: 0, clickPower: 1, autoPower: 0, multiplier: 1, petLevel: 1,
+            costs: { click: 50, auto: 150, pet: 500, mult: 10000 }
         };
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, (window.innerWidth - 450) / window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(75, (window.innerWidth - 480) / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth - 450, window.innerHeight);
+        renderer.setSize(window.innerWidth - 480, window.innerHeight);
         document.getElementById('game-area').appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 1.6));
-        const sun = new THREE.DirectionalLight(0xffffff, 0.6);
-        sun.position.set(5, 10, 5);
-        scene.add(sun);
-
-        // Камеру ставим повыше, чтобы видеть всю толпу
-        camera.position.set(0, 12, 18);
+        scene.add(new THREE.AmbientLight(0xffffff, 1.8));
+        camera.position.set(0, 15, 25);
         camera.lookAt(0, 0, 0);
 
         const loader = new GLTFLoader();
         const pets = [];
+        // ПОЛНЫЙ СПИСОК ИЗ ТВОИХ СКРИНШОТОВ! (28 штук)
         const petFiles = [
-            'animal-polar.glb', 'animal-panda.glb', 'animal-fox.glb', 'animal-penguin.glb', 
-            'animal-pig.glb', 'animal-cat.glb', 'animal-dog.glb', 'animal-elephant.glb', 
-            'animal-caterpillar.glb', 'animal-bee.glb' // <-- БАГ ИСПРАВЛЕН! Снейк заменён на Катерпиллар!
+            'animal-polar.glb', 'animal-beaver.glb', 'animal-bee.glb', 'animal-bunny.glb', 
+            'animal-cat.glb', 'animal-caterpillar.glb', 'animal-chick.glb', 'animal-cow.glb', 
+            'animal-crab.glb', 'animal-deer.glb', 'animal-dog.glb', 'animal-elephant.glb', 
+            'animal-fish.glb', 'animal-fox.glb', 'animal-giraffe.glb', 'animal-hog.glb',
+            'animal-koala.glb', 'animal-lion.glb', 'animal-monkey.glb', 'animal-panda.glb',
+            'animal-parrot.glb', 'animal-penguin.glb', 'animal-pig.glb', 'animal-tiger.glb'
         ];
 
         function spawnPet(idx) {
             const fileName = petFiles[idx % petFiles.length];
             loader.load(fileName, (gltf) => {
                 const model = gltf.scene;
+                // РАССТАНОВКА (в ряд по 7 штук)
+                const row = Math.floor(idx / 7);
+                const col = idx % 7;
+                model.position.set(col * 5 - 15, 0, row * 5 - 5);
                 
-                // КРУТАЯ РАССТАНОВКА (в ряд по 5 штук)
-                const row = Math.floor(idx / 5);
-                const col = idx % 5;
-                model.position.set(col * 4 - 8, 0, row * 5 - 2);
-                model.scale.set(1.5, 1.5, 1.5);
+                // ЧИНИМ БАГ: принудительно поднимаем всех на 1 метр вверх
+                model.position.y = 1; 
                 
+                model.scale.set(2, 2, 2);
                 scene.add(model);
                 pets.push(model);
             });
         }
-        spawnPet(0); // Стартовый Полар!
+        // Спавним 3-х стартовых зверей (Полар, Бобр, Пчела) чтобы сразу было весело
+        spawnPet(0); spawnPet(1); spawnPet(2);
+        game.petLevel = 3;
 
-        // КЛИК ПО ЛЮБОМУ ЖИВОТНОМУ
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
         window.addEventListener('mousedown', (e) => {
-            if (e.clientX > window.innerWidth - 450) return;
-            mouse.x = (e.clientX / (window.innerWidth - 450)) * 2 - 1;
+            if (e.clientX > window.innerWidth - 480) return;
+            mouse.x = (e.clientX / (window.innerWidth - 480)) * 2 - 1;
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
 
@@ -136,16 +119,13 @@
             if (intersects.length > 0) {
                 game.gold += (game.clickPower * game.multiplier);
                 updateUI();
-                
-                // Находим корень модели и делаем прыжок
                 let target = intersects[0].object;
                 while(target.parent && target.parent !== scene) target = target.parent;
-                target.scale.set(2, 2, 2);
-                setTimeout(() => target.scale.set(1.5, 1.5, 1.5), 100);
+                target.scale.set(3, 3, 3);
+                setTimeout(() => target.scale.set(2, 2, 2), 100);
             }
         });
 
-        // Автокликер (10 раз в секунду для плавности)
         setInterval(() => {
             if (game.autoPower > 0) {
                 game.gold += (game.autoPower * game.multiplier) / 10;
@@ -157,7 +137,6 @@
             document.getElementById('gold-display').innerText = "💰 " + Math.floor(game.gold);
             document.getElementById('stat-click').innerText = game.clickPower * game.multiplier;
             document.getElementById('stat-auto').innerText = game.autoPower * game.multiplier;
-            
             document.getElementById('lvl-click').innerText = game.clickPower;
             document.getElementById('cost-click').innerText = game.costs.click;
             document.getElementById('lvl-auto').innerText = game.autoPower;
@@ -165,33 +144,32 @@
             document.getElementById('cost-mult').innerText = game.costs.mult;
             document.getElementById('cost-pet').innerText = game.costs.pet;
             document.getElementById('pet-count').innerText = game.petLevel;
-            
-            document.getElementById('buy-pet-btn').disabled = (game.petLevel >= 10);
+            document.getElementById('buy-pet-btn').disabled = (game.petLevel >= 28);
         }
 
         window.upgrade = (type) => {
             if (game.gold >= game.costs[type]) {
                 game.gold -= game.costs[type];
-                if (type === 'click') { game.clickPower++; game.costs.click = Math.floor(game.costs.click * 1.8); }
-                if (type === 'auto') { game.autoPower++; game.costs.auto = Math.floor(game.costs.auto * 1.9); }
+                if (type === 'click') { game.clickPower++; game.costs.click = Math.floor(game.costs.click * 1.7); }
+                if (type === 'auto') { game.autoPower++; game.costs.auto = Math.floor(game.costs.auto * 1.8); }
                 if (type === 'mult') { game.multiplier *= 2; game.costs.mult *= 10; }
                 updateUI();
             }
         };
 
         window.buyPet = () => {
-            if (game.gold >= game.costs.pet && game.petLevel < 10) {
+            if (game.gold >= game.costs.pet && game.petLevel < 28) {
                 game.gold -= game.costs.pet;
                 spawnPet(game.petLevel);
                 game.petLevel++;
-                game.costs.pet = Math.floor(game.costs.pet * 2.5);
+                game.costs.pet = Math.floor(game.costs.pet * 2);
                 updateUI();
             }
         };
 
         function animate() {
             requestAnimationFrame(animate);
-            // Все звери преданно смотрят на тебя
+            // ПРИКОЛЮХА: Питомец, на которого ты навел мышку, начинает танцевать!
             pets.forEach(p => p.lookAt(camera.position.x, 0, camera.position.z));
             renderer.render(scene, camera);
         }
