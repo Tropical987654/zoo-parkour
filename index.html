@@ -1,110 +1,89 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ZOO PARKOUR: KENNEY EDITION</title>
+    <meta charset="UTF-8">
+    <title>ZOO PARKOUR: REAL FOREST 🌳</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #87CEEB; font-family: 'Arial', sans-serif; }
-        #ui { position: absolute; top: 20px; left: 20px; color: white; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); pointer-events: none; }
-        .hint { font-size: 14px; opacity: 0.8; }
+        body { margin: 0; overflow: hidden; background: #a2d2ff; font-family: sans-serif; }
+        #ui { position: absolute; top: 20px; left: 20px; color: white; text-shadow: 2px 2px 4px #000; pointer-events: none; }
     </style>
 </head>
 <body>
     <div id="ui">
-        <h1>ZOO PARKOUR 🐻‍❄️</h1>
-        <p>Крути <b>КОЛЁСИКО</b> мыши — меняй зверя!</p>
-        <p class="hint">Убедись, что файлы .glb лежат в одной папке с этим файлом</p>
+        <h1>ZOO PARKOUR</h1>
+        <p>Крути <b>КОЛЁСИКО</b> — меняй зверя!</p>
     </div>
 
     <script type="module">
         import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
         import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
 
-        // 1. НАСТРОЙКА МИРА
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Свет (как в мультфильме)
         scene.add(new THREE.AmbientLight(0xffffff, 1.2));
         const sun = new THREE.DirectionalLight(0xffffff, 0.8);
         sun.position.set(10, 20, 10);
         scene.add(sun);
 
-        camera.position.set(0, 6, 12);
+        camera.position.set(0, 8, 15);
         camera.lookAt(0, 0, 0);
 
         const loader = new GLTFLoader();
 
-        // 2. СПИСОК ЖИВОТНЫХ (Имена из твоего набора Kenney)
-        const animals = [
-            'animal-bear.glb',
-            'animal-panda.glb',
-            'animal-fox.glb',
-            'animal-cat.glb',
-            'animal-dog.glb',
-            'animal-penguin.glb',
-            'animal-pig.glb'
-        ];
-        
+        // --- ГЕРОИ ---
+        const animals = ['animal-bear.glb', 'animal-panda.glb', 'animal-fox.glb', 'animal-penguin.glb'];
         let currentIdx = 0;
-        let playerModel = null;
+        let player = null;
 
-        function loadAnimal(index) {
-            if (playerModel) scene.remove(playerModel);
-            
-            loader.load(animals[index], (gltf) => {
-                playerModel = gltf.scene;
-                playerModel.position.y = 1; // Ставим на платформу
-                scene.add(playerModel);
-            }, undefined, (err) => {
-                console.error("Богдан, файл не найден: " + animals[index]);
+        function loadPlayer(idx) {
+            if (player) scene.remove(player);
+            loader.load(animals[idx], (gltf) => {
+                player = gltf.scene;
+                player.position.y = 1;
+                scene.add(player);
             });
         }
+        loadPlayer(currentIdx);
 
-        // Загружаем первого зверя
-        loadAnimal(currentIdx);
-
-        // 3. УПРАВЛЕНИЕ КОЛЁСИКОМ
         window.addEventListener('wheel', (e) => {
-            if (e.deltaY > 0) currentIdx = (currentIdx + 1) % animals.length;
-            else currentIdx = (currentIdx - 1 + animals.length) % animals.length;
-            loadAnimal(currentIdx);
+            currentIdx = e.deltaY > 0 ? (currentIdx + 1) % animals.length : (currentIdx - 1 + animals.length) % animals.length;
+            loadPlayer(currentIdx);
         });
 
-        // 4. ГЕНЕРАЦИЯ ПАРКУРА (ЛЕСНЫЕ ПЛАТФОРМЫ)
-        function spawnForestPlatform(z) {
-            const geometry = new THREE.BoxGeometry(5, 1, 5);
-            const material = new THREE.MeshStandardMaterial({ color: 0x3a9d23 }); // Цвет травы
-            const platform = new THREE.Mesh(geometry, material);
-            
-            // Делаем зигзаг, чтобы было похоже на паркур
-            platform.position.set(Math.sin(z * 0.3) * 4, 0, z);
-            scene.add(platform);
-        }
+        // --- ГЕНЕРАЦИЯ ЛЕСА ---
+        // Тут мы используем твои модели из MegaKit
+        function spawnWorld() {
+            for (let z = 0; z > -200; z -= 10) {
+                // 1. Ставим платформу (кочку)
+                const geo = new THREE.CylinderGeometry(3, 3, 1, 6);
+                const mat = new THREE.MeshStandardMaterial({ color: 0x55aa44 });
+                const land = new THREE.Mesh(geo, mat);
+                land.position.set(Math.sin(z * 0.3) * 5, 0, z);
+                scene.add(land);
 
-        // Строим дорогу на 150 метров вперед
-        for (let z = 0; z > -150; z -= 8) {
-            spawnForestPlatform(z);
+                // 2. С шансом 50% ставим дерево из твоего пака рядом!
+                if (Math.random() > 0.5) {
+                    loader.load('Tree.glb', (gltf) => { // Проверь, чтобы файл назывался именно так!
+                        const tree = gltf.scene;
+                        tree.position.set(land.position.x + 6, 0, z);
+                        tree.scale.set(2, 2, 2);
+                        scene.add(tree);
+                    });
+                }
+            }
         }
+        spawnWorld();
 
-        // 5. ЦИКЛ ИГРЫ
         function animate() {
             requestAnimationFrame(animate);
-            if (playerModel) {
-                playerModel.rotation.y += 0.01; // Пусть зверь красиво крутится
-            }
+            if (player) player.rotation.y += 0.01;
             renderer.render(scene, camera);
         }
         animate();
-
-        // Поддержка изменения размера окна
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
     </script>
 </body>
 </html>
